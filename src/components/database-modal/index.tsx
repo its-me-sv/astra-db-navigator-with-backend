@@ -22,7 +22,7 @@ import Select from '../select';
 interface DatabaseModalProps {}
 
 const DatabaseModal: React.FC<DatabaseModalProps> = () => {
-  const {setDbToken, setLoading, appToken: tkn} = useConnectionContext();
+  const {setDbToken, setLoading, dbToken: tkn} = useConnectionContext();
   const {language} = useLanguageContext();
 
   const [dbName, setDbName] = useState<string>('');

@@ -47,6 +47,7 @@ export const DatabaseContextProvider: React.FC<{children: ReactNode}> = ({childr
         setAppToken!(tkn);
         setScreen!(1);
       } else {
+        toast.error("No database found");
         setDbToken!(tkn);
       }
       setLoading(false);

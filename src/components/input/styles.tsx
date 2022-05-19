@@ -22,7 +22,7 @@ export const InputLabel = styled.label<{tiny?: boolean}>`
 export const StyledInput = styled.input<{tiny?: boolean}>`
   font-family: Roboto;
   font-size: 1.6rem;
-  color: #171717;
+  color: rgba(0, 0, 0, 0.7);
   text-align: center;
   border-radius: 0.42rem;
   outline: none;
@@ -35,6 +35,7 @@ export const StyledInput = styled.input<{tiny?: boolean}>`
     box-shadow: 1px 0px 3px 0px rgba(0, 0, 0, 0.7) inset;
     -webkit-box-shadow: 1px 0px 3px 0px rgba(0, 0, 0, 0.7) inset;
     -moz-box-shadow: 1px 0px 3px 0px rgba(0, 0, 0, 0.7) inset;
+    color: rgba(0, 0, 0, 0.9);
   }
   ${props => props.tiny && `
     font-size: 1.2rem;
