@@ -1,4 +1,6 @@
 import React, {useState, useEffect} from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 import {
   ModalContainer, ModalWrapper, 
@@ -8,6 +10,7 @@ import {ModalButtons} from '../../pages/keyspace/styles';
 import {general, mainHeaderTranslations} from '../../utils/translations.utils';
 import {cps, dummyZones} from '../../utils/dummy-data';
 import {CloudProviders, RegionSchema} from "../../utils/types";
+import {extractRegions} from '../../utils/extractors.utils';
 
 import {useConnectionContext} from '../../contexts/connection.context';
 import {useLanguageContext} from '../../contexts/language.context';
@@ -19,7 +22,7 @@ import Select from '../select';
 interface DatabaseModalProps {}
 
 const DatabaseModal: React.FC<DatabaseModalProps> = () => {
-  const {setDbToken, setLoading} = useConnectionContext();
+  const {setDbToken, setLoading, appToken: tkn} = useConnectionContext();
   const {language} = useLanguageContext();
 
   const [dbName, setDbName] = useState<string>('');
@@ -37,22 +40,32 @@ const DatabaseModal: React.FC<DatabaseModalProps> = () => {
       cloudProvider,
       tier: "serverless",
       capacityUnits: 1,
-      region: region.split(' ').slice(-1)[0]
+      region: region.split(" ").slice(-1)[0],
     };
-    setTimeout(() => {
-      console.log(requestBody);
+    axios.post(`/.netlify/functions/create-database`, {requestBody, tkn})
+    .then(() => {
       setLoading!(false);
       onClose();
-    }, 500);
+      toast.success(`${dbName} is being created`);
+    })
+    .catch((err) => {
+      setLoading!(false);
+      toast.error(err.response.data);
+    });
   };
 
   useEffect(() => {
     setLoading!(true);
-    setTimeout(() => {
-      setRegions(dummyZones);
-      setRegion(dummyZones.AWS[0].name);
+    axios.post(`/.netlify/functions/fetch-regions`, {tkn})
+    .then(({data}) => {
       setLoading!(false);
-    }, 500);
+      const fetchedRegions: RegionSchema = extractRegions(data);
+      setRegions(fetchedRegions);
+      setRegion(fetchedRegions.AWS[0].name);
+    }).catch(err => {
+      setLoading!(false);
+      toast.error(err.response.data);
+    });
   }, []);
 
   return (
@@ -86,10 +99,10 @@ const DatabaseModal: React.FC<DatabaseModalProps> = () => {
               label="Region"
               options={
                 regions[cloudProvider]
-                .map(({displayName, name}) => `${displayName} ${name}`) as Array<string>
+                ?.map(({displayName, name}) => `${displayName} ${name}`) as Array<string>
               }
-              val={cloudProvider}
-              setVal={setCloudProvider as (val:string) => void}
+              val={region}
+              setVal={setRegion}
               notHeader
             />
           )}

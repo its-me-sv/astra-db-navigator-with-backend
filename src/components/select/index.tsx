@@ -18,7 +18,7 @@ const Select: React.FC<SelectProps> = ({options, val, setVal, notHeader, label='
     <Container>
       {label.length > 0 && <InputLabel tiny>{label}</InputLabel>}
       <SelectStyles value={val} onChange={handleDbChange} notHdr={notHeader}>
-        {options.map((v) => (
+        {options?.map((v) => (
           <OptionStyles key={v} value={v}>{v.split('/').slice(-1)[0]}</OptionStyles>
         ))}
       </SelectStyles>
