@@ -1,5 +1,6 @@
 import React, {createContext, ReactNode, useContext, useState} from 'react';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 import {extractDatabases} from '../utils/extractors.utils';
 
@@ -28,7 +29,7 @@ export const DatabaseContext = createContext<DatabaseContextInterface>(defaultSt
 export const useDatabaseContext = () => useContext(DatabaseContext);
 
 export const DatabaseContextProvider: React.FC<{children: ReactNode}> = ({children}) => {
-  const {setAppToken, setScreen} = useConnectionContext();
+  const {setAppToken, setScreen, setDbToken} = useConnectionContext();
 
   const [databases, setDatabases] = useState<Array<string>>(defaultState.databases);
   const [currDatabase, setCurrDatabase] = useState<string>(defaultState.currDatabase);
@@ -37,19 +38,23 @@ export const DatabaseContextProvider: React.FC<{children: ReactNode}> = ({childr
   const fetchDatabases = (tkn: string) => {
     if (tkn.length < 1) return;
     setLoading(true);
-    // axios.get(`https://api.astra.datastax.com/v2/databases`, {
-    //   headers: {
-    //     Authorization: `Bearer ${tkn}`,
-    //     'Access-Control-Allow-Credentials':true
-    //   },
-    // }).then(console.log);
-    setTimeout(() => {
-      setDatabases(['workshops', 'pirate-land', 'aneta']);
-      currDatabase.length < 1 && setCurrDatabase('workshops');
-      setAppToken!(tkn);
-      setScreen!(1);
+    axios.post(`/.netlify/functions/fetch-databases`, {tkn})
+    .then(({data}) => {
+      const retrievedDatabases: Array<string> = extractDatabases(data);
+      if (retrievedDatabases.length > 0) {
+        setDatabases(retrievedDatabases);
+        currDatabase.length < 1 && setCurrDatabase(retrievedDatabases[0]);
+        setAppToken!(tkn);
+        setScreen!(1);
+      } else {
+        setDbToken!(tkn);
+      }
       setLoading(false);
-    }, 500);
+    })
+    .catch((err) => {
+      toast.error(err.response.data);
+      setLoading(false);
+    });
   };
 
   const resetState = () => {

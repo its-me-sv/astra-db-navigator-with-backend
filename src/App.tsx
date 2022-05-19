@@ -1,4 +1,5 @@
 import React from 'react';
+import {Toaster} from 'react-hot-toast';
 
 import {useConnectionContext} from './contexts/connection.context';
 import {useDatabaseContext} from './contexts/database.context';
@@ -23,6 +24,7 @@ const App: React.FC<AppProps> = () => {
   
   return (
     <>
+      <Toaster />
       {(loading || databaseLoading || keyspaceLoading || tableLoading || typeLoading) 
       && <BlockLoader />}
       {dbToken && <DatabaseModal />}

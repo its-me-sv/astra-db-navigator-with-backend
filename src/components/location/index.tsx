@@ -20,7 +20,7 @@ const Location: React.FC<LocationProps> = () => {
       <LocationItem 
         selected={screen === 1}
         onClick={() => {screen !== 1 && setDb!(database)}}
-      >{database}</LocationItem>
+      >{database.split('/').slice(-1)[0]}</LocationItem>
       <span> / </span>
       {screen > 1 && (
         <LocationItem 
