@@ -1,9 +1,12 @@
 import React, {createContext, ReactNode, useContext, useState} from 'react';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 import {KeyspaceSchema} from '../utils/types';
-import {dummyKeyspaces} from '../utils/dummy-data';
+import {extractKeyspaces} from '../utils/extractors.utils';
 
 import {useConnectionContext} from './connection.context';
+import {useDatabaseContext} from './database.context';
 
 interface KeyspaceContextInterface {
   keyspaces: Array<KeyspaceSchema>;
@@ -28,7 +31,8 @@ export const KeyspaceContext = createContext<KeyspaceContextInterface>(defaultSt
 export const useKeyspaceContext = () => useContext(KeyspaceContext);
 
 export const KeyspaceContextProvider: React.FC<{children: ReactNode}> = ({children}) => {
-  const {setScreen} = useConnectionContext();
+  const {setScreen, appToken: tkn} = useConnectionContext();
+  const {currDatabase} = useDatabaseContext();
 
   const [keyspaces, setKeyspaces] = useState<Array<KeyspaceSchema>>(defaultState.keyspaces);
   const [currKeyspace, setCurrKeyspace] = useState<KeyspaceSchema | null>(defaultState.currKeyspace);
@@ -37,10 +41,17 @@ export const KeyspaceContextProvider: React.FC<{children: ReactNode}> = ({childr
   const fetchKeyspaces = (dbName: string) => {
     if (dbName.length < 1) return;
     setLoading(true);
-    setTimeout(() => {
-      setKeyspaces(dummyKeyspaces);
+    axios.post(
+      `/.netlify/functions/fetch-keyspaces`, 
+      {tkn, dbId: currDatabase.split('/')[0], dbRegion: currDatabase.split('/')[1]}
+    )
+    .then(({data}) => {
+      setKeyspaces(extractKeyspaces(data.data));
       setLoading(false);
-    }, 500);
+    }).catch((err) => {
+      toast.error(err.response.data);
+      setLoading(false);
+    });
   };
   
   const setKeyspace = (ksName: string) => {

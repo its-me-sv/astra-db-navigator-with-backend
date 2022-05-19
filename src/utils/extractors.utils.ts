@@ -1,9 +1,9 @@
-import {RegionSchema, CloudProviders} from "./types";
+import {RegionSchema, CloudProviders, KeyspaceSchema} from "./types";
 
 export const extractDatabases = (reqBody: any): Array<string> => {
   const databases: Array<string> = [];
   for (let database of reqBody)
-    databases.push(`${database.id}/${database.info.name}`);
+    databases.push(`${database.id}/${database.info.region}/${database.info.name}`);
   return databases;
 };
 
@@ -17,4 +17,11 @@ export const extractRegions = (reqBody: any): RegionSchema => {
     });
   }
   return regions;
+};
+
+export const extractKeyspaces = (reqBody: any): Array<KeyspaceSchema> => {
+  const keyspaces: Array<KeyspaceSchema> = [];
+  for (let keyspace of reqBody) 
+    keyspaces.push({name: keyspace.name, dataCenters: keyspace?.datacenters?.length || '-'});
+  return keyspaces;
 };
