@@ -1,4 +1,7 @@
 import React, {MutableRefObject, useState} from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
+
 import {
   ModalContainer, ModalWrapper,
   ModalTitle, ColumnOptionsContainer
@@ -9,6 +12,9 @@ import {NewColumn as NewTyp} from '../../utils/types';
 import {collectionTypes} from '../../utils/dummy-data';
 
 import {useLanguageContext} from '../../contexts/language.context';
+import {useConnectionContext} from "../../contexts/connection.context";
+import {useDatabaseContext} from "../../contexts/database.context";
+import {useKeyspaceContext} from "../../contexts/keyspace.context";
 
 import Button from '../button';
 import Input from "../input";
@@ -20,10 +26,14 @@ interface FieldModalProps {
   newField: MutableRefObject<NewTyp>;
   fromNewTyp?: boolean;
   ls: (val: boolean) => void;
+  typeName?: string;
 }
 
-const FieldModal: React.FC<FieldModalProps> = ({onClose, ac, fromNewTyp, newField, ls}) => {
+const FieldModal: React.FC<FieldModalProps> = ({onClose, ac, fromNewTyp, newField, ls, typeName}) => {
   const {language} = useLanguageContext();
+  const {appToken: tkn} = useConnectionContext();
+  const {currDatabase} = useDatabaseContext();
+  const {currKeyspace} = useKeyspaceContext();
 
   const [fieldName, setFieldName] = useState<string>("field_name");
   const [type, setType] = useState<string>("ascii");
@@ -36,11 +46,25 @@ const FieldModal: React.FC<FieldModalProps> = ({onClose, ac, fromNewTyp, newFiel
       onClose();
     } else {
       ls(true);
-      setTimeout(() => {
-        ac();
-        ls(false);
-        onClose();
-      }, 500);
+      axios
+        .post(`/.netlify/functions/add-field`, {
+          tkn,
+          dbId: currDatabase.split("/")[0],
+          dbRegion: currDatabase.split("/")[1],
+          ksName: currKeyspace?.name,
+          tName: typeName,
+          newField: newField.current,
+        })
+        .then(({data}) => {
+          ac();
+          ls(false);
+          toast.success(data);
+          onClose();
+        })
+        .catch((err) => {
+          ls(false);
+          toast.error(err.reponse.data);
+        });
     }
   };
 

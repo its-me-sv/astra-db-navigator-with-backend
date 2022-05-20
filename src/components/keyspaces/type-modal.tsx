@@ -113,6 +113,7 @@ const TypeModal: React.FC<TypeModalProps> = ({typeName, onClose, ls}) => {
           onClose={hideField}
           ac={applyField}
           newField={newFieldRef}
+          typeName={typeName}
         />
       )}
       {showRename && (
