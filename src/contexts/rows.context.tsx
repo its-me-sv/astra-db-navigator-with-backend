@@ -2,13 +2,13 @@ import React, {createContext, ReactNode, useContext, useState} from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-import {dummyColumns} from '../utils/dummy-data';
 import {RowType} from '../utils/types';
 import {getDummyRows} from '../utils/row.utils';
 
 import {useConnectionContext} from './connection.context';
 import {useDatabaseContext} from './database.context';
 import {useKeyspaceContext} from './keyspace.context';
+import {useTableContext} from './table.context';
 
 interface RowsContextInterface {
   columns: Array<string>;
@@ -44,6 +44,7 @@ export const RowsContextProvider: React.FC<{children: ReactNode}> = ({children})
   const {setLoading, appToken: tkn} = useConnectionContext();
   const {currDatabase} = useDatabaseContext();
   const {currKeyspace} = useKeyspaceContext();
+  const {currTable} = useTableContext();
 
   const [columns, setColumns] = useState<Array<string>>(defaultState.columns);
   const [resColumns, setResColumns] = useState<Array<string>>(defaultState.resColumns);
@@ -91,10 +92,23 @@ export const RowsContextProvider: React.FC<{children: ReactNode}> = ({children})
   const fetchRows = (fromFilter: boolean = false) => {
     if (page === null) return;
     setLoading!(true);
+    const defaultReqBody = {
+      tkn,
+      dbId: currDatabase.split("/")[0],
+      dbRegion: currDatabase.split("/")[1],
+      ksName: currKeyspace?.name,
+      tableName: currTable?.name,
+    };
+    const reqBody = {
+      fields: resColumns.join(),
+      "page-size": +pageSize,
+    };
     setTimeout(() => {
       if (fromFilter) {
-        console.log("filtering");
-        setRows(getDummyRows(resColumns, +pageSize));
+        axios.post(`/.netlify/functions/fetch-rows`, {...defaultReqBody, reqBody})
+        .then(({data}) => {
+          setRows(data);
+        });
       }
       else {
         if (rows.length > 0) {
