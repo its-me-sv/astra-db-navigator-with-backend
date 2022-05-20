@@ -11,10 +11,9 @@ import {
   SubFieldItems, SubFieldsSep
 } from './styles';
 import {EmptyContent} from '../../pages/keyspace/styles';
-import {dummyIndices} from '../../utils/dummy-data';
 import {ColumnSchema, IndexSchema, NewColumn, ClusterSchema} from '../../utils/types';
 import {general, tableModalTranslations} from '../../utils/translations.utils';
-import {extractColumns} from '../../utils/extractors.utils';
+import {extractColumns, extractIndices} from '../../utils/extractors.utils';
 
 import {useLanguageContext} from '../../contexts/language.context';
 import {useTableContext} from '../../contexts/table.context';
@@ -126,8 +125,19 @@ const TableModal: React.FC<TableModalProps> = ({tableName, onClose, ls, types}) 
         setPars(data.primaryKey.partitionKey);
         setClstrs(data.tableOptions.clusteringExpression);
         setDefTtl(data.tableOptions.defaultTimeToLive+'');
-        setIndices(dummyIndices);
-        ls!(false);
+        axios.post(`/.netlify/functions/fetch-indices`, {
+          tkn,
+          dbId: currDatabase.split("/")[0],
+          dbRegion: currDatabase.split("/")[1],
+          ksName: currKeyspace?.name,
+          tableName,
+        }).then(({data: idxData}) => {
+          ls!(false);
+          setIndices(extractIndices(idxData));
+        }).catch(err => {
+          ls!(false);
+          toast.error(err.response.data);
+        });
       })
       .catch((err) => {
         ls!(false);

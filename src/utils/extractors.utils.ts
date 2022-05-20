@@ -1,7 +1,7 @@
 import {
   RegionSchema, CloudProviders, 
   KeyspaceSchema, TableSchema,
-  TypeSchema, FieldSchema, ColumnSchema
+  TypeSchema, FieldSchema, ColumnSchema, IndexSchema
 } from "./types";
 
 export const extractDatabases = (reqBody: any): Array<string> => {
@@ -56,4 +56,16 @@ export const extractColumns = (reqColumns: any): Array<ColumnSchema> => {
   for (let column of reqColumns)
     columns.push({name: column.name, static: column.static, type: column.typeDefinition});
   return columns;
+};
+
+const filteredOptions = (options: Array<any>): Array<string> => {
+  const realOptions = options.filter(({key}) => key !== 'class_name');
+  return realOptions.map(({value}) => value);
+};
+
+export const extractIndices = (reqIndices: any): Array<IndexSchema> => {
+  const indices: Array<IndexSchema> = [];
+  for (let index of reqIndices)
+    indices.push({name: index.index_name, kind: index.kind, options: filteredOptions(index.options)});
+  return indices;
 };
