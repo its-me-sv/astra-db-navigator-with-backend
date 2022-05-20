@@ -122,6 +122,7 @@ const TypeModal: React.FC<TypeModalProps> = ({typeName, onClose, ls}) => {
           onClose={hideRename}
           fields={fields.map(({name}) => name)}
           renamer={renameField}
+          typeName={typeName}
         />
       )}
       <ModalContainer>
