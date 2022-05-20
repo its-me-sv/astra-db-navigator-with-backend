@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
+import axios from 'axios';
 
 import {
   ModalWrapper,
@@ -17,10 +19,14 @@ import {
 import {ColumnSchema, IndexSchema} from '../../utils/types';
 import {booleanOptions, indexTypes, kinds} from '../../utils/dummy-data';
 
+import {useLanguageContext} from '../../contexts/language.context';
+import {useConnectionContext} from '../../contexts/connection.context';
+import {useDatabaseContext} from '../../contexts/database.context';
+import {useKeyspaceContext} from '../../contexts/keyspace.context';
+
 import Button from '../button';
 import Input from '../input';
 import Select from '../select';
-import {useLanguageContext} from '../../contexts/language.context';
 
 interface IndexModalProps {
   onClose: () => void;
@@ -33,6 +39,9 @@ interface IndexModalProps {
 
 const IndexModal: React.FC<IndexModalProps> = ({onClose, table, columns, addIdx, ls}) => {
   const {language} = useLanguageContext();
+  const {appToken: tkn} = useConnectionContext();
+  const {currDatabase} = useDatabaseContext();
+  const {currKeyspace} = useKeyspaceContext();
   
   // general
   const [column, setColumn] = useState<string>(columns[0].name);
@@ -45,21 +54,37 @@ const IndexModal: React.FC<IndexModalProps> = ({onClose, table, columns, addIdx,
 
   const onCreate = () => {
     ls(true);
-    const requestBody: any = {
-      name, column, type: "StorageAttachedIndex",
+    const reqBody: any = {
+      name,
+      column,
+      type: "StorageAttachedIndex",
       options: {
-        case_sensitive: cs === 'true',
-        normalize: normal === 'true',
-        ascii: ascii === 'true'
-      }
+        case_sensitive: cs === "true",
+        normalize: normal === "true",
+        ascii: ascii === "true",
+      },
     };
     if (kind !== 'NONE')
-      requestBody.kind = kind;
-    setTimeout(() => {
-      addIdx(name, column);
-      ls(false);
-      onClose();
-    }, 500);
+      reqBody.kind = kind;
+    axios
+      .post(`/.netlify/functions/add-index`, {
+        tkn,
+        dbId: currDatabase.split("/")[0],
+        dbRegion: currDatabase.split("/")[1],
+        ksName: currKeyspace?.name,
+        tableName: table,
+        reqBody,
+      })
+      .then(({ data }) => {
+        addIdx(name, column);
+        ls(false);
+        onClose();
+        toast.success(data);
+      })
+      .catch((err) => {
+        ls(false);
+        toast.error(err.response.data);
+      });
   };
 
   return (
