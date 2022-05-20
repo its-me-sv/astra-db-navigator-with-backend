@@ -16,12 +16,13 @@ import {useDeleteContext} from '../../contexts/delete.context';
 
 import SearchField from '../search-field';
 import Button from '../button';
+import NewRow from './new-row';
 
 interface RowsAreaInterface {}
 
 const RowsArea: React.FC<RowsAreaInterface> = () => {
   const {language} = useLanguageContext();
-  const {rows, fetchRows, deleteRow} = useRowsContext();
+  const {rows, fetchRows, deleteRow, setShowRow, showRow} = useRowsContext();
   const {setText, deleteCb} = useDeleteContext();
 
   const [keyword, setKeyword] = useState<string>("");
@@ -40,6 +41,7 @@ const RowsArea: React.FC<RowsAreaInterface> = () => {
   
   return (
     <RowAreaWrapper>
+      {showRow && <NewRow onClose={() => setShowRow!(false)} />}
       <RowsHeader>
         <div />
         <SearchField
@@ -49,7 +51,7 @@ const RowsArea: React.FC<RowsAreaInterface> = () => {
         />
         <Button
           text={rowTranslations.newRow[language]}
-          onPress={() => {}}
+          onPress={() => setShowRow!(true)}
           disabled={false}
           variant={2}
         />

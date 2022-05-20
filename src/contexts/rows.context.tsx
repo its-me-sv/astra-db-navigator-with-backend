@@ -17,6 +17,7 @@ interface RowsContextInterface {
   pageSize: string;
   rows: Array<RowType>;
   page: string | null;
+  showRow: boolean;
   fetchColumns?: (tblName: string) => void;
   fetchRows?: (fromFilter?: boolean) => void;
   setCurrColumn?: (val: string) => void;
@@ -25,6 +26,7 @@ interface RowsContextInterface {
   removeColumn?: (colName: string) => void;
   resetState?: () => void;
   deleteRow?: (idx: number) => void;
+  setShowRow?: (val: boolean) => void;
 }
 
 const defaultState: RowsContextInterface = {
@@ -33,7 +35,8 @@ const defaultState: RowsContextInterface = {
   currColumn: '',
   pageSize: '5',
   rows: [],
-  page: ""
+  page: "",
+  showRow: false
 };
 
 export const RowsContext = createContext<RowsContextInterface>(defaultState);
@@ -52,6 +55,7 @@ export const RowsContextProvider: React.FC<{children: ReactNode}> = ({children})
   const [pageSize, setPageSize] = useState<string>(defaultState.pageSize);
   const [rows, setRows] = useState<Array<RowType>>(defaultState.rows);
   const [page, setPage] = useState<string | null>(defaultState.page);
+  const [showRow, setShowRow] = useState<boolean>(defaultState.showRow);
 
   const fetchColumns = (tableName: string) => {
     if (tableName.length < 1) return;
@@ -142,15 +146,16 @@ export const RowsContextProvider: React.FC<{children: ReactNode}> = ({children})
     setPageSize(defaultState.pageSize);
     setRows(defaultState.rows);
     setPage(defaultState.page);
+    setShowRow(defaultState.showRow);
   };
 
   return (
     <RowsContext.Provider value={{
       columns, resColumns, currColumn, pageSize, 
-      rows, page,
+      rows, page, showRow,
       fetchColumns, setCurrColumn, addColumn,
       removeColumn, setPageSize, fetchRows,
-      resetState, deleteRow
+      resetState, deleteRow, setShowRow
     }}>{children}</RowsContext.Provider>
   );
 };

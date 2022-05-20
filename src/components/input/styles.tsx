@@ -48,6 +48,8 @@ export const StyledTextArea = styled.textarea<{ isDesc?: boolean }>`
   padding: 3px;
   font-size: 1.2rem;
   resize: none;
+  max-width: 49vw;
+  margin: 1% 0%;
   /*  */
   ${(props) =>
     props.isDesc &&

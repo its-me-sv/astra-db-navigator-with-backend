@@ -478,5 +478,11 @@ export const rowTranslations = {
     "Carica di più",
     "Carga más",
     "Charger plus"
+  ],
+  useJson: [
+    "Use JSON format",
+    "Usa il formato JSON",
+    "Usar formato JSON",
+    "Utiliser le format JSON"
   ]
 };

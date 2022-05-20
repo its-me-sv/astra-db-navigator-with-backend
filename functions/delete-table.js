@@ -15,7 +15,6 @@ exports.handler = async function (event) {
       body: JSON.stringify("Table has been deleted")
     };
   } catch (err) {
-    console.log(err);
     return {
       statusCode: 400,
       body: JSON.stringify("Couldn't delete table")

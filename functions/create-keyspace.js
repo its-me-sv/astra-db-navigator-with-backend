@@ -2,7 +2,6 @@ const axios = require('axios');
 
 exports.handler = async function (event) {
   const {dbId, tkn, ksName} = JSON.parse(event.body);
-  console.log({dbId, tkn, ksName});
   try {
     const {data} = await axios.post(
       `https://api.astra.datastax.com/v2/databases/${dbId}/keyspaces/${ksName}`,
