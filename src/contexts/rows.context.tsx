@@ -103,26 +103,28 @@ export const RowsContextProvider: React.FC<{children: ReactNode}> = ({children})
       fields: resColumns.join(),
       "page-size": +pageSize,
     };
-    setTimeout(() => {
-      if (fromFilter) {
-        axios.post(`/.netlify/functions/fetch-rows`, {...defaultReqBody, reqBody})
-        .then(({data}) => {
-          setRows(data);
-        });
+    if (fromFilter) {
+      axios.post(`/.netlify/functions/fetch-rows`, {...defaultReqBody, reqBody})
+      .then(({data}) => {
+        setRows(data);
+        setPage("");
+        setLoading!(false);
+      });
+    }
+    else {
+      if (rows.length > 0) {
+        console.log("pagination");
+        setRows([...rows, ...getDummyRows(resColumns, +pageSize)]);
+        setPage("");
+        setLoading!(false);
       }
       else {
-        if (rows.length > 0) {
-          console.log("pagination");
-          setRows([...rows, ...getDummyRows(resColumns, +pageSize)]);
-        }
-        else {
-          console.log("first fetch");
-          setRows(getDummyRows(resColumns, +pageSize));
-        }
+        console.log("first fetch");
+        setRows(getDummyRows(resColumns, +pageSize));
+        setPage("");
+        setLoading!(false);
       }
-      setPage('');
-      setLoading!(false);
-    }, 500);
+    }
   };
 
   const deleteRow = (idx: number) => {
