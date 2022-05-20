@@ -78,11 +78,25 @@ const TableModal: React.FC<TableModalProps> = ({tableName, onClose, ls, types}) 
   const removeIndex = (idxName: string) => {
     deleteCb!.current = () => {
       ls!(true);
-      setTimeout(() => {
-        setIndices(indices.filter(({ name }) => name !== idxName));
-        setText!('');
-        ls!(false);
-      }, 500);
+      axios
+        .post("/.netlify/functions/delete-index", {
+          tkn,
+          dbId: currDatabase.split("/")[0],
+          dbRegion: currDatabase.split("/")[1],
+          ksName: currKeyspace?.name,
+          tableName,
+          idxName,
+        })
+        .then(({ data }) => {
+          setIndices(indices.filter(({ name }) => name !== idxName));
+          setText!("");
+          ls!(false);
+          toast.success(data);
+        })
+        .catch((err) => {
+          ls!(false);
+          toast.error(err.response.data);
+        });
     };
     setText!(`${general.delete[language]} ${general.index[language].toLowerCase()} ${idxName}?`);
   };
