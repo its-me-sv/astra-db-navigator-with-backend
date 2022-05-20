@@ -90,12 +90,26 @@ const TableModal: React.FC<TableModalProps> = ({tableName, onClose, ls, types}) 
   const removeColumn = (colName: string) => {
     deleteCb!.current = () => {
       ls!(true);
-      setTimeout(() => {
-        setColumns(columns.filter(({name}) => name !== colName));
-        decCol!(tableName);
-        setText!('');
-        ls!(false);
-      }, 500);
+      axios
+        .post(`/.netlify/functions/delete-column`, {
+          tkn,
+          dbId: currDatabase.split("/")[0],
+          dbRegion: currDatabase.split("/")[1],
+          ksName: currKeyspace?.name,
+          tableName,
+          colName,
+        })
+        .then(({ data }) => {
+          setColumns(columns.filter(({ name }) => name !== colName));
+          decCol!(tableName);
+          setText!("");
+          toast.success(data);
+          ls!(false);
+        })
+        .catch((err) => {
+          ls!(false);
+          toast.error(err.response.data);
+        });
     };
     setText!(`${general.delete[language]} ${general.column[language].toLowerCase()} ${colName}?`);
   };
