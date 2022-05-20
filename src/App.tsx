@@ -1,5 +1,5 @@
-import React from 'react';
-import {Toaster} from 'react-hot-toast';
+import React, {useEffect, useRef} from 'react';
+import toast, {Toaster} from 'react-hot-toast';
 
 import {useConnectionContext} from './contexts/connection.context';
 import {useDatabaseContext} from './contexts/database.context';
@@ -21,6 +21,17 @@ const App: React.FC<AppProps> = () => {
   const {loading: keyspaceLoading} = useKeyspaceContext();
   const {loading: tableLoading} = useTableContext();
   const {loading: typeLoading} = useTypeContext();
+  const prompted = useRef<boolean>(false);
+
+  useEffect(() => {
+    if (prompted.current) return;
+    toast("This product is not part of the datastax cloud offering", {
+      icon: "ℹ️",
+      duration: 5000,
+      position: "top-right"
+    });
+    prompted.current = true;
+  }, []);
   
   return (
     <>
