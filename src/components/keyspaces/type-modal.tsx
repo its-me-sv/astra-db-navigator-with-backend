@@ -50,12 +50,25 @@ const TypeModal: React.FC<TypeModalProps> = ({typeName, onClose, ls}) => {
   const deleteType = () => {
     deleteCb!.current = () => {
       setLoading!(true);
-      setTimeout(() => {
-        removeType!(typeName);
-        setText!("");
-        onClose();
-        setLoading!(false);
-      }, 500);
+      axios
+        .post(`/.netlify/functions/delete-type`, {
+          tkn,
+          dbId: currDatabase.split("/")[0],
+          dbRegion: currDatabase.split("/")[1],
+          ksName: currKeyspace?.name,
+          tName: typeName,
+        })
+        .then(({ data }) => {
+          setLoading!(false);
+          removeType!(typeName);
+          toast.success(data);
+          setText!("");
+          onClose();
+        })
+        .catch((err) => {
+          setLoading!(false);
+          toast.error(err.response.data);
+        });
     };
     setText!(`${general.delete[language]} ${general.type[language].toLowerCase()} ${typeName}?`);
   };
