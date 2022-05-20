@@ -56,12 +56,25 @@ const TableModal: React.FC<TableModalProps> = ({tableName, onClose, ls, types}) 
   const deleteTable = () => {
     deleteCb!.current = () => {
       setLoading!(true);
-      setTimeout(() => {
-        removeTable!(tableName);
-        setText!('');
-        onClose();
-        setLoading!(false);
-      }, 500);
+      axios
+        .post(`/.netlify/functions/delete-table`, {
+          tkn,
+          dbId: currDatabase.split("/")[0],
+          dbRegion: currDatabase.split("/")[1],
+          ksName: currKeyspace?.name,
+          tableName,
+        })
+        .then(({ data }) => {
+          removeTable!(tableName);
+          setText!("");
+          onClose();
+          setLoading!(false);
+          toast.success(data);
+        })
+        .catch((err) => {
+          setLoading!(false);
+          toast.error(err.response.data);
+        });
     };
     setText!(`${general.delete[language]} ${general.table[language].toLowerCase()} ${tableName}?`);
   };
