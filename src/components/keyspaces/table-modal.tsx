@@ -168,6 +168,7 @@ const TableModal: React.FC<TableModalProps> = ({tableName, onClose, ls, types}) 
           newCol={newColRef}
           ls={ls!}
           ac={addColumn}
+          tableName={tableName}
         />
       )}
       <ModalContainer>
@@ -192,14 +193,15 @@ const TableModal: React.FC<TableModalProps> = ({tableName, onClose, ls, types}) 
             <ModalItem key={val.name}>
               <div>
                 <span>{val.name}</span>
-                {!pars.includes(val.name) && !clstrs.map(({column}) => column).includes(val.name) && (
-                  <ModalItemCloseButton
-                    title={tableModalTranslations.delCol[language]}
-                    onClick={() => removeColumn(val.name)}
-                  >
-                    🗑️
-                  </ModalItemCloseButton>
-                )}
+                {!pars.includes(val.name) &&
+                  !clstrs.map(({ column }) => column).includes(val.name) && (
+                    <ModalItemCloseButton
+                      title={tableModalTranslations.delCol[language]}
+                      onClick={() => removeColumn(val.name)}
+                    >
+                      🗑️
+                    </ModalItemCloseButton>
+                  )}
               </div>
               <HrLine />
               <span>
@@ -250,7 +252,9 @@ const TableModal: React.FC<TableModalProps> = ({tableName, onClose, ls, types}) 
         </ModalSubFields>
         <HrLine />
         <ModalSubTextsContainer>
-          <span>{tableModalTranslations.dTtl[language]}: {defTtl}</span>
+          <span>
+            {tableModalTranslations.dTtl[language]}: {defTtl}
+          </span>
           <span>
             {tableModalTranslations.cluExp[language]}: {clusExp || "-"}
           </span>

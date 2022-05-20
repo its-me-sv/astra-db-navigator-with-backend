@@ -1,4 +1,6 @@
 import React, {MutableRefObject, useState} from 'react';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 import {
   ModalWrapper, ModalContainer,
@@ -18,6 +20,9 @@ import {
 } from '../../utils/dummy-data';
 
 import {useLanguageContext} from '../../contexts/language.context';
+import {useConnectionContext} from '../../contexts/connection.context';
+import {useDatabaseContext} from '../../contexts/database.context';
+import {useKeyspaceContext} from '../../contexts/keyspace.context';
 
 import Input from '../input';
 import Select from '../select';
@@ -30,12 +35,16 @@ interface ColumnModalProps {
   ls: (val: boolean) => void;
   ac: () => void;
   fromNewTbl?: boolean;
+  tableName?: string;
 }
 
 const ColumnModal: React.FC<ColumnModalProps> = ({
-  onClose, types, newCol, ls, ac, fromNewTbl
+  onClose, types, newCol, ls, ac, fromNewTbl, tableName
 }) => {
   const {language} = useLanguageContext();
+  const {appToken: tkn} = useConnectionContext();
+  const {currDatabase} = useDatabaseContext();
+  const {currKeyspace} = useKeyspaceContext();
 
   const [columnName, setColumnName] = useState<string>('column_name');
   const [type, setType] = useState<string>('ascii');
@@ -61,11 +70,25 @@ const ColumnModal: React.FC<ColumnModalProps> = ({
       onClose();
     } else {
       ls(true);
-      setTimeout(() => {
-        ac();
-        ls(false);
-        onClose();
-      }, 500);
+      axios
+        .post("/.netlify/functions/add-column", {
+          tkn,
+          dbId: currDatabase.split("/")[0],
+          dbRegion: currDatabase.split("/")[1],
+          ksName: currKeyspace?.name,
+          tableName,
+          reqBody: newCol.current,
+        })
+        .then(({ data }) => {
+          ac();
+          ls(false);
+          toast.success(data);
+          onClose();
+        })
+        .catch((err) => {
+          ls(false);
+          toast.error(err.response.data);
+        });
     }
   };
 
