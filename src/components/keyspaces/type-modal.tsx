@@ -1,4 +1,6 @@
 import React, {useState, useRef, useEffect} from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 import {
   ModalContainer, ModalWrapper,
@@ -11,13 +13,16 @@ import {
   keyspacesTranslations, newTypeTranslations,
   general
 } from '../../utils/translations.utils';
-import {dummyFields} from '../../utils/dummy-data';
 import {EmptyContent} from "../../pages/keyspace/styles";
 import {FieldSchema, NewColumn as NewField} from '../../utils/types';
+import {extractFields} from "../../utils/extractors.utils";
 
 import {useLanguageContext} from '../../contexts/language.context';
 import {useDeleteContext} from "../../contexts/delete.context";
 import {useTypeContext} from "../../contexts/type.context";
+import {useConnectionContext} from '../../contexts/connection.context';
+import {useDatabaseContext} from "../../contexts/database.context";
+import {useKeyspaceContext} from "../../contexts/keyspace.context";
 
 import Button from '../button';
 import FieldModal from './field-modal';
@@ -33,6 +38,9 @@ const TypeModal: React.FC<TypeModalProps> = ({typeName, onClose, ls}) => {
   const {language} = useLanguageContext();
   const {deleteCb, setText} = useDeleteContext();
   const {setLoading, removeType} = useTypeContext();
+  const {appToken: tkn} = useConnectionContext();
+  const {currDatabase} = useDatabaseContext();
+  const {currKeyspace} = useKeyspaceContext();
 
   const [fields, setFields] = useState<Array<FieldSchema>>([]);
   const [showField, setShowField] = useState<boolean>(false);
@@ -79,10 +87,22 @@ const TypeModal: React.FC<TypeModalProps> = ({typeName, onClose, ls}) => {
   useEffect(() => {
     if (typeName.length < 0) return;
     ls!(true);
-    setTimeout(() => {
-      setFields(dummyFields);
-      ls!(false);
-    }, 500);
+    axios
+      .post(`/.netlify/functions/fetch-fields`, {
+        tkn,
+        dbId: currDatabase.split("/")[0],
+        dbRegion: currDatabase.split("/")[1],
+        ksName: currKeyspace?.name,
+        tName: typeName,
+      })
+      .then(({data}) => {
+        setFields(extractFields(data.data.fields));
+        ls!(false);
+      })
+      .catch((err) => {
+        ls!(false);
+        toast.error(err.response.data);
+      });
   }, [typeName]);
 
   return (

@@ -1,7 +1,7 @@
 import {
   RegionSchema, CloudProviders, 
   KeyspaceSchema, TableSchema,
-  TypeSchema
+  TypeSchema, FieldSchema
 } from "./types";
 
 export const extractDatabases = (reqBody: any): Array<string> => {
@@ -42,4 +42,11 @@ export const extractTypes = (reqBody: any): Array<TypeSchema> => {
   for (let val of reqBody)
     types.push({name: val.name, fields: val.fields.length});
   return types;
+};
+
+export const extractFields = (reqFields: any): Array<FieldSchema> => {
+  const fields: Array<FieldSchema> = [];
+  for (let field of reqFields)
+    fields.push({name: field.name, type: field.typeDefinition});
+  return fields;
 };
