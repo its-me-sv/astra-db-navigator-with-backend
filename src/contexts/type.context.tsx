@@ -1,7 +1,12 @@
 import React, {createContext, ReactNode, useContext, useState} from 'react';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 import {TypeSchema} from '../utils/types';
-import {dummyTypes} from '../utils/dummy-data';
+import {extractTypes} from '../utils/extractors.utils';
+
+import {useConnectionContext} from './connection.context';
+import {useDatabaseContext} from './database.context';
 
 interface TypeContextInterface {
   types: Array<TypeSchema>;
@@ -26,6 +31,9 @@ export const TypeContext = createContext<TypeContextInterface>(defaultState);
 export const useTypeContext = () => useContext(TypeContext);
 
 export const TypeContextProvider: React.FC<{children: ReactNode}> = ({children}) => {
+  const {appToken: tkn} = useConnectionContext();
+  const {currDatabase} = useDatabaseContext();
+
   const [types, setTypes] = useState<Array<TypeSchema>>(defaultState.types);
   const [currType, setCurrType] = useState<TypeSchema | null>(defaultState.currType);
   const [loading, setLoading] = useState<boolean>(defaultState.loading);
@@ -33,10 +41,17 @@ export const TypeContextProvider: React.FC<{children: ReactNode}> = ({children})
   const fetchTypes = (ksName: string) => {
     if (ksName.length < 1) return;
     setLoading(true);
-    setTimeout(() => {
-      setTypes(dummyTypes);
+    axios.post(
+      `/.netlify/functions/fetch-types`, 
+      {tkn, ksName, dbId: currDatabase.split('/')[0], dbRegion: currDatabase.split('/')[1]}
+    )
+    .then(({data}) => {
+      setTypes(extractTypes(data.data));
       setLoading(false);
-    }, 500);
+    }).catch(err => {
+      setLoading(false);
+      toast.error(err.response.data);
+    });
   };
 
   const addType = (name: string, fields: number) => {

@@ -1,4 +1,8 @@
-import {RegionSchema, CloudProviders, KeyspaceSchema, TableSchema} from "./types";
+import {
+  RegionSchema, CloudProviders, 
+  KeyspaceSchema, TableSchema,
+  TypeSchema
+} from "./types";
 
 export const extractDatabases = (reqBody: any): Array<string> => {
   const databases: Array<string> = [];
@@ -31,4 +35,11 @@ export const extractTables = (reqBody: any): Array<TableSchema> => {
   for (let table of reqBody)
     tables.push({name: table.name, columns: table.columnDefinitions.length});
   return tables;
+};
+
+export const extractTypes = (reqBody: any): Array<TypeSchema> => {
+  const types: Array<TypeSchema> = [];
+  for (let val of reqBody)
+    types.push({name: val.name, fields: val.fields.length});
+  return types;
 };
