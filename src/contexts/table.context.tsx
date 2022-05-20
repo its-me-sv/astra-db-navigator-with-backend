@@ -1,10 +1,13 @@
 import React, {createContext, ReactNode, useContext, useState} from 'react';
+import axios from "axios";
+import toast from "react-hot-toast";
 
 import {TableSchema} from '../utils/types';
-import {dummyTables} from '../utils/dummy-data';
 import {addColumn, removeColumn} from '../utils/table.utils';
+import {extractTables} from '../utils/extractors.utils';
 
 import {useConnectionContext} from './connection.context';
+import {useDatabaseContext} from './database.context';
 
 interface TableContextInterface {
   tables: Array<TableSchema>;
@@ -32,7 +35,8 @@ export const TableContext = createContext<TableContextInterface>(defaultState);
 export const useTableContext = () => useContext(TableContext);
 
 export const TableContextProvider: React.FC<{children: ReactNode}> = ({children}) => {
-  const {setScreen} = useConnectionContext();
+  const {setScreen, appToken: tkn} = useConnectionContext();
+  const {currDatabase} = useDatabaseContext();
 
   const [tables, setTables] = useState<Array<TableSchema>>(defaultState.tables);
   const [currTable, setCurrTable] = useState<TableSchema | null>(defaultState.currTable);
@@ -41,10 +45,17 @@ export const TableContextProvider: React.FC<{children: ReactNode}> = ({children}
   const fetchTables = (ksName: string) => {
     if (ksName.length < 1) return;
     setLoading(true);
-    setTimeout(() => {
-      setTables(dummyTables);
+    axios.post(
+      `/.netlify/functions/fetch-tables`, 
+      {tkn, ksName, dbId: currDatabase.split('/')[0], dbRegion: currDatabase.split('/')[1]}
+    )
+    .then(({data}) => {
+      setTables(extractTables(data.data));
       setLoading(false);
-    }, 500);
+    }).catch(err => {
+      setLoading(false);
+      toast.error(err.response.data);
+    });
   };
 
   const setTable = (tblName: string) => {
