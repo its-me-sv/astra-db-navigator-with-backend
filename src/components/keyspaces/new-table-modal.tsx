@@ -1,4 +1,6 @@
 import React, {useState, useRef, MutableRefObject} from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 import {
   ModalWrapper, ModalContainer,
@@ -23,6 +25,9 @@ import {useLanguageContext} from '../../contexts/language.context';
 import {useTableContext} from '../../contexts/table.context';
 import {useTypeContext} from '../../contexts/type.context';
 import {useDeleteContext} from '../../contexts/delete.context';
+import {useConnectionContext} from "../../contexts/connection.context";
+import {useDatabaseContext} from '../../contexts/database.context';
+import {useKeyspaceContext} from '../../contexts/keyspace.context';
 
 import Button from '../button';
 import ColumnModal from "./column-modal";
@@ -37,6 +42,9 @@ const NewTableModal: React.FC<NewTableModalProps> = ({onClose}) => {
   const {setLoading: ls, addTbl} = useTableContext();
   const {types} = useTypeContext();
   const {setText, deleteCb} = useDeleteContext();
+  const {appToken: tkn} = useConnectionContext();
+  const {currDatabase} = useDatabaseContext();
+  const {currKeyspace} = useKeyspaceContext();
 
   const [columns, setColumns] = useState<Array<ColumnSchema>>([]);
   const [showColumn, setShowColumn] = useState<boolean>(false);
@@ -101,19 +109,25 @@ const NewTableModal: React.FC<NewTableModalProps> = ({onClose}) => {
     if (ttlRef.current?.value.length > 0 
         && !Number(ttlRef.current.value)) return;
     ls!(true);
-    const requestBody = getRequestBody(
-      tblNameRef,
-      columns,
-      pars,
-      clstrs,
-      ttlRef
-    );
-    setTimeout(() => {
-      console.log(requestBody);
-      addTbl!(tblNameRef.current.value, columns.length);
-      ls!(false);
-      onClose();
-    }, 500);
+    const reqBody = getRequestBody(tblNameRef, columns, pars, clstrs, ttlRef);
+    axios
+      .post(`/.netlify/functions/create-table`, {
+        tkn,
+        dbId: currDatabase.split("/")[0],
+        dbRegion: currDatabase.split("/")[1],
+        ksName: currKeyspace?.name,
+        reqBody,
+      })
+      .then(({data}) => {
+        ls!(false);
+        toast.success(data);
+        addTbl!(tblNameRef.current.value, columns.length);
+        onClose();
+      })
+      .catch((err) => {
+        ls!(false);
+        toast.error(err.response.data);
+      });
   };
 
   const clusExp: string = clstrs
