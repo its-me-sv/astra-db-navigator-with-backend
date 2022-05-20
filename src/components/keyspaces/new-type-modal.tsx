@@ -1,4 +1,6 @@
 import React, {useState, useRef, MutableRefObject} from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 import {
   ModalWrapper, ModalContainer, 
@@ -17,6 +19,9 @@ import {EmptyContent} from "../../pages/keyspace/styles";
 import {useLanguageContext} from '../../contexts/language.context';
 import {useDeleteContext} from '../../contexts/delete.context';
 import {useTypeContext} from '../../contexts/type.context';
+import {useConnectionContext} from "../../contexts/connection.context";
+import {useDatabaseContext} from "../../contexts/database.context";
+import {useKeyspaceContext} from "../../contexts/keyspace.context";
 
 import Button from '../button';
 import FieldModal from './field-modal';
@@ -28,6 +33,9 @@ interface NewTypeModalProps {
 
 const NewTypeModal: React.FC<NewTypeModalProps> = ({onClose}) => {
   const {language} = useLanguageContext();
+  const {appToken: tkn} = useConnectionContext();
+  const {currDatabase} = useDatabaseContext();
+  const {currKeyspace} = useKeyspaceContext();
   const {deleteCb, setText} = useDeleteContext();
   const {setLoading, addType} = useTypeContext();
   
@@ -59,17 +67,28 @@ const NewTypeModal: React.FC<NewTypeModalProps> = ({onClose}) => {
   const createType = () => {
     if (typNameRef.current?.value.length < 1 || fields.length < 1) return;
     if (typNameRef.current?.value.search(/^[a-zA-Z0-9_]+$/) === -1) return;
-    setLoading!(true);
-    const requestBody = {
+    const reqBody = {
       name: typNameRef.current.value,
       fields: fields.map(({name, type:typeDefinition}) => ({name, typeDefinition}))
     };
-    setTimeout(() => {
-      console.log(requestBody);
-      addType!(typNameRef.current.value, fields.length);
-      setLoading!(false);
-      onClose();
-    }, 500);
+    setLoading!(true);
+    axios
+      .post(`/.netlify/functions/create-type`, {
+        reqBody, tkn,
+        ksName: currKeyspace?.name,
+        dbId: currDatabase.split("/")[0],
+        dbRegion: currDatabase.split("/")[1],
+      })
+      .then(({data}) => {
+        setLoading!(false);
+        addType!(typNameRef.current.value, fields.length);
+        toast.success(data);
+        onClose();
+      })
+      .catch((err) => {
+        setLoading!(false);
+        toast.error(err.response.data);
+      });
   };
 
   return (
