@@ -1,4 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
+import toast from 'react-hot-toast';
+import axios from "axios";
 
 import {
   ModalWrapper, ModalContainer,
@@ -9,13 +11,17 @@ import {
   SubFieldItems, SubFieldsSep
 } from './styles';
 import {EmptyContent} from '../../pages/keyspace/styles';
-import {dummyColumns, dummyIndices, dummyPars, dummyClstrs} from '../../utils/dummy-data';
+import {dummyIndices} from '../../utils/dummy-data';
 import {ColumnSchema, IndexSchema, NewColumn, ClusterSchema} from '../../utils/types';
 import {general, tableModalTranslations} from '../../utils/translations.utils';
+import {extractColumns} from '../../utils/extractors.utils';
 
 import {useLanguageContext} from '../../contexts/language.context';
 import {useTableContext} from '../../contexts/table.context';
 import {useDeleteContext} from '../../contexts/delete.context';
+import {useConnectionContext} from '../../contexts/connection.context';
+import {useDatabaseContext} from '../../contexts/database.context';
+import {useKeyspaceContext} from '../../contexts/keyspace.context';
 
 import Button from '../button';
 import IndexModal from './index-modal';
@@ -32,10 +38,14 @@ const TableModal: React.FC<TableModalProps> = ({tableName, onClose, ls, types}) 
   const {language} = useLanguageContext();
   const {removeTable, setLoading, decCol} = useTableContext();
   const {setText, deleteCb} = useDeleteContext();
+  const {appToken: tkn} = useConnectionContext();
+  const {currDatabase} = useDatabaseContext();
+  const {currKeyspace} = useKeyspaceContext();
 
   const [columns, setColumns] = useState<Array<ColumnSchema>>([]);
   const [indices, setIndices] = useState<Array<IndexSchema>>([]);
   const [pars, setPars] = useState<Array<string>>([]);
+  const [defTtl, setDefTtl] = useState<string>('0');
   const [clstrs, setClstrs] = useState<Array<ClusterSchema>>([]);
   const [showIndex, setShowIndex] = useState<boolean>(false);
   const [showColumn, setShowColumn] = useState<boolean>(false);
@@ -103,13 +113,26 @@ const TableModal: React.FC<TableModalProps> = ({tableName, onClose, ls, types}) 
   useEffect(() => {
     if (tableName.length < 1) return;
     ls!(true);
-    setTimeout(() => {
-      setColumns(dummyColumns);
-      setIndices(dummyIndices);
-      setPars(dummyPars);
-      setClstrs(dummyClstrs);
-      ls!(false);
-    }, 500);
+    axios
+      .post(`/.netlify/functions/fetch-table`, {
+        tkn,
+        dbId: currDatabase.split('/')[0],
+        dbRegion: currDatabase.split('/')[1],
+        ksName: currKeyspace?.name,
+        tableName,
+      })
+      .then(({ data }) => {
+        setColumns(extractColumns(data.columnDefinitions));
+        setPars(data.primaryKey.partitionKey);
+        setClstrs(data.tableOptions.clusteringExpression);
+        setDefTtl(data.tableOptions.defaultTimeToLive+'');
+        setIndices(dummyIndices);
+        ls!(false);
+      })
+      .catch((err) => {
+        ls!(false);
+        toast.error(err.response.data);
+      });
   }, [tableName, ls]);
 
   const clusExp: string = clstrs
@@ -217,7 +240,7 @@ const TableModal: React.FC<TableModalProps> = ({tableName, onClose, ls, types}) 
         </ModalSubFields>
         <HrLine />
         <ModalSubTextsContainer>
-          <span>{tableModalTranslations.dTtl[language]}: 0</span>
+          <span>{tableModalTranslations.dTtl[language]}: {defTtl}</span>
           <span>
             {tableModalTranslations.cluExp[language]}: {clusExp || "-"}
           </span>
