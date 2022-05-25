@@ -47,7 +47,7 @@ const ColumnModal: React.FC<ColumnModalProps> = ({
   const {currKeyspace} = useKeyspaceContext();
 
   const [columnName, setColumnName] = useState<string>('column_name');
-  const [type, setType] = useState<string>('ascii');
+  const [type, setType] = useState<string>('text');
   const [staticc, setStaticc] = useState<string>('false');
   // const [keyType, setKeyType] = useState<string>("Partition");
   
@@ -116,7 +116,7 @@ const ColumnModal: React.FC<ColumnModalProps> = ({
           <Select
             val={type}
             setVal={setType}
-            options={[...dataTypes, ...types].sort()}
+            options={[...dataTypes, ...types]}
             notHeader
             label="Data type"
           />

@@ -36,7 +36,7 @@ const FieldModal: React.FC<FieldModalProps> = ({onClose, ac, fromNewTyp, newFiel
   const {currKeyspace} = useKeyspaceContext();
 
   const [fieldName, setFieldName] = useState<string>("field_name");
-  const [type, setType] = useState<string>("ascii");
+  const [type, setType] = useState<string>("text");
 
   const onModalCreate = () => {
     newField.current.name = fieldName;

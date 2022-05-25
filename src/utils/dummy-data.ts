@@ -283,10 +283,10 @@ zu
 `.split('\n');
 
 export const dataTypes: Array<string> = [
-  "ascii", "bigint", "blob", "boolean", "date", "decimal",
-  "double", "float", "inet", "int", "list",
-  "map", "set", "smallint", "text", "time", "timestamp",
-  "timeuuid", "tinyint", "tuple", "uuid", "varchar",
+  "text", "int", "uuid", "timeuuid", "date", "double",
+  "set", "map", "list",
+  "ascii", "bigint", "blob", "boolean", "decimal", "float", "inet",
+  "smallint", "time", "timestamp", "tinyint", "tuple",  "varchar",
   "varint"
 ];
 export const collections: Array<string> = ["list", "map", "set"];
@@ -294,9 +294,10 @@ export const nonMapCollections: Array<string> = ["list", "tuple", "set"]
 export const colTypes: Array<string> = ["Partition", "Clustering", "None"];
 export const collectionDepth: Array<string> = "12".split('');
 export const collectionTypes: Array<string> = [
-  "ascii", "bigint", "blob", "boolean", "date", "decimal",
-  "double", "float", "inet", "int", "smallint", "text", "time", 
-  "timestamp", "timeuuid", "tinyint", "uuid", "varchar", "varint"
+  "text", "int", "uuid", "timeuuid", "date", "double",
+  "ascii", "bigint", "blob", "boolean", "decimal", "float", "inet",
+  "smallint", "time", "timestamp", "tinyint", "varchar",
+  "varint"
 ];
 
 export const orderTypes: Array<OrdersType> = ["ASC", "DESC"];
