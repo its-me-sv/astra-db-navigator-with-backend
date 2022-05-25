@@ -48,6 +48,7 @@ const ColumnModal: React.FC<ColumnModalProps> = ({
 
   const [columnName, setColumnName] = useState<string>('column_name');
   const [type, setType] = useState<string>('ascii');
+  const [staticc, setStaticc] = useState<string>('false');
   // const [keyType, setKeyType] = useState<string>("Partition");
   
   // for collections
@@ -65,6 +66,7 @@ const ColumnModal: React.FC<ColumnModalProps> = ({
       type, frozen === 'true', +depth, 
       colTyp, key, value
     );
+    newCol.current.static = staticc === "true";
     if (fromNewTbl === true) {
       ac();
       onClose();
@@ -103,6 +105,13 @@ const ColumnModal: React.FC<ColumnModalProps> = ({
             value={columnName}
             setValue={setColumnName}
             tiny
+          />
+          <Select
+            val={staticc}
+            setVal={setStaticc}
+            options={booleanOptions}
+            notHeader
+            label="Static"
           />
           <Select
             val={type}

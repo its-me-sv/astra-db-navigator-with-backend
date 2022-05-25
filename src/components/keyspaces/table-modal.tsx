@@ -48,7 +48,7 @@ const TableModal: React.FC<TableModalProps> = ({tableName, onClose, ls, types}) 
   const [clstrs, setClstrs] = useState<Array<ClusterSchema>>([]);
   const [showIndex, setShowIndex] = useState<boolean>(false);
   const [showColumn, setShowColumn] = useState<boolean>(false);
-  const newColRef = useRef<NewColumn>({name: '', typeDefinition: "ascii"});
+  const newColRef = useRef<NewColumn>({name: '', typeDefinition: "ascii", static: false});
 
   const hideShowIndex = () => setShowIndex(false);
   const hideColumnModal = () => setShowColumn(false);
@@ -145,7 +145,7 @@ const TableModal: React.FC<TableModalProps> = ({tableName, onClose, ls, types}) 
     const newCol: ColumnSchema = {
       name: newColRef.current.name,
       type: newColRef.current.typeDefinition,
-      static: false
+      static: newColRef.current.static as boolean,
     };
     setColumns([...columns, newCol]);
   };

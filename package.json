@@ -45,6 +45,7 @@
     ]
   },
   "devDependencies": {
+    "@size-limit/preset-app": "^7.0.8",
     "@types/styled-components": "^5.1.25"
   }
 }

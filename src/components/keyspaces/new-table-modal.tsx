@@ -51,7 +51,7 @@ const NewTableModal: React.FC<NewTableModalProps> = ({onClose}) => {
   const [pars, setPars] = useState<Array<string>>([]);
   const [clstrs, setClstrs] = useState<Array<ClusterSchema>>([]);
   const [showPriKey, setShowPriKey] = useState<PrimaryKeyType>('NONE');
-  const newColRef = useRef<NewColumn>({name: '', typeDefinition: "ascii"});
+  const newColRef = useRef<NewColumn>({name: '', typeDefinition: "ascii", static: false});
   const tblNameRef = useRef() as MutableRefObject<HTMLInputElement>;
   const ttlRef = useRef() as MutableRefObject<HTMLInputElement>;
 
@@ -61,7 +61,7 @@ const NewTableModal: React.FC<NewTableModalProps> = ({onClose}) => {
     const newCol: ColumnSchema = {
       name: newColRef.current.name,
       type: newColRef.current.typeDefinition,
-      static: false
+      static: newColRef.current.static as boolean
     };
     setColumns([...columns, newCol]);
   };

@@ -28,6 +28,7 @@ export interface IndexSchema {
 export interface NewColumn {
   name: string;
   typeDefinition: string;
+  static?: boolean;
 }
 
 export interface ClusterSchema {
