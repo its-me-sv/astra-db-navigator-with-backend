@@ -13,6 +13,7 @@ import {useTableContext} from './table.context';
 interface RowsContextInterface {
   columns: Array<string>;
   resColumns: Array<string>;
+  priColumns: Array<string>;
   currColumn: string;
   pageSize: string;
   rows: Array<RowType>;
@@ -36,7 +37,8 @@ const defaultState: RowsContextInterface = {
   pageSize: '5',
   rows: [],
   page: "",
-  showRow: false
+  showRow: false,
+  priColumns: []
 };
 
 export const RowsContext = createContext<RowsContextInterface>(defaultState);
@@ -51,6 +53,7 @@ export const RowsContextProvider: React.FC<{children: ReactNode}> = ({children})
 
   const [columns, setColumns] = useState<Array<string>>(defaultState.columns);
   const [resColumns, setResColumns] = useState<Array<string>>(defaultState.resColumns);
+  const [priColumns, setPriColumns] = useState<Array<string>>(defaultState.priColumns);
   const [currColumn, setCurrColumn] = useState<string>(defaultState.currColumn);
   const [pageSize, setPageSize] = useState<string>(defaultState.pageSize);
   const [rows, setRows] = useState<Array<RowType>>(defaultState.rows);
@@ -61,7 +64,7 @@ export const RowsContextProvider: React.FC<{children: ReactNode}> = ({children})
     if (tableName.length < 1) return;
     setLoading!(true);
     axios
-      .post("/.netlify/functions/fetch-columns", {
+      .post("/.netlify/functions/fetch-table", {
         tkn,
         dbId: currDatabase.split("/")[0],
         dbRegion: currDatabase.split("/")[1],
@@ -69,10 +72,43 @@ export const RowsContextProvider: React.FC<{children: ReactNode}> = ({children})
         tableName,
       })
       .then(({ data }) => {
-        const availColumns = data.map(({ name }: { name: string }) => name);
+        const primaries: Array<string> = [
+          ...data.primaryKey.partitionKey,
+          ...data.primaryKey.clusteringKey,
+        ];
+        setPriColumns(primaries);
+        const availColumns: Array<string> = data.columnDefinitions.map(
+          ({name}: {name: string}) => name
+        ).filter((cn: string) => !primaries.includes(cn));
         setColumns(availColumns);
+        setResColumns(primaries);
         setCurrColumn(availColumns[0]);
-        setLoading!(false);
+        const defaultReqBody = {
+          tkn,
+          dbId: currDatabase.split("/")[0],
+          dbRegion: currDatabase.split("/")[1],
+          ksName: currKeyspace?.name,
+          tableName: currTable?.name,
+        };
+        const reqBody: any = {
+          fields: primaries.join(),
+          "page-size": +pageSize,
+          where: {},
+        };
+        axios
+          .post(`/.netlify/functions/fetch-rows`, {
+            ...defaultReqBody,
+            reqBody,
+          })
+          .then(({ data: data2 }) => {
+            setRows(data2.data);
+            setPage(data2.pageState);
+            setLoading!(false);
+          })
+          .catch((err) => {
+            toast.error(err.response.data);
+            setLoading!(false);
+          });
       })
       .catch((err) => {
         setLoading!(false);
@@ -94,7 +130,10 @@ export const RowsContextProvider: React.FC<{children: ReactNode}> = ({children})
   };
 
   const fetchRows = (fromFilter: boolean = false) => {
-    if (page === null) return;
+    if (page === null && !fromFilter) {
+      toast.error("No more rows to fetch");
+      return;
+    }
     setLoading!(true);
     const defaultReqBody = {
       tkn,
@@ -157,12 +196,13 @@ export const RowsContextProvider: React.FC<{children: ReactNode}> = ({children})
     setRows(defaultState.rows);
     setPage(defaultState.page);
     setShowRow(defaultState.showRow);
+    setPriColumns(defaultState.priColumns);
   };
 
   return (
     <RowsContext.Provider value={{
       columns, resColumns, currColumn, pageSize, 
-      rows, page, showRow,
+      rows, page, showRow, priColumns,
       fetchColumns, setCurrColumn, addColumn,
       removeColumn, setPageSize, fetchRows,
       resetState, deleteRow, setShowRow

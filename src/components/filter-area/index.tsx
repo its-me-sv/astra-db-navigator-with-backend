@@ -25,7 +25,8 @@ const FilterArea: React.FC<FilterAreaProps> = () => {
   const {language} = useLanguageContext();
   const {
     columns, resColumns, currColumn, pageSize, fetchRows,
-    setCurrColumn, addColumn, removeColumn, setPageSize
+    setCurrColumn, addColumn, removeColumn, setPageSize,
+    priColumns
   } = useRowsContext();
 
   return (
@@ -64,12 +65,12 @@ const FilterArea: React.FC<FilterAreaProps> = () => {
           <ModalItem key={val}>
             <div>
               <span>{val}</span>
-              <ModalItemCloseButton
+              {!priColumns.includes(val) && (<ModalItemCloseButton
                 title={tableModalTranslations.delCol[language]}
                 onClick={() => removeColumn!(val)}
               >
                 🗑️
-              </ModalItemCloseButton>
+              </ModalItemCloseButton>)}
             </div>
           </ModalItem>
         ))}
