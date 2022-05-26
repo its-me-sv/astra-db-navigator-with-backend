@@ -10,16 +10,16 @@ export const InputField = styled.div<{tiny?: boolean}>`
   `}
 `;
 
-export const InputLabel = styled.label<{tiny?: boolean}>`
+export const InputLabel = styled.label<{tiny?: boolean; little?: boolean}>`
   font-family: "bahnschrift";
   font-size: 1.4rem;
   opacity: 0.84;
-  ${props => props.tiny && `
+  ${props => (props.tiny || props.little) && `
     font-size: 1.2rem;
   `}
 `;
 
-export const StyledInput = styled.input<{tiny?: boolean}>`
+export const StyledInput = styled.input<{tiny?: boolean; little?: boolean}>`
   font-family: Roboto;
   font-size: 1.6rem;
   color: rgba(0, 0, 0, 0.7);
@@ -40,6 +40,11 @@ export const StyledInput = styled.input<{tiny?: boolean}>`
   ${props => props.tiny && `
     font-size: 1.2rem;
     border-radius: 0.21rem;
+  `}
+  ${props => props.little && `
+    font-size: 1.2rem;
+    border-radius: 0.21rem;
+    width: 12rem;
   `}
 `;
 

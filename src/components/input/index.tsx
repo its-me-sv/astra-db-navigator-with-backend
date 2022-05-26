@@ -13,15 +13,16 @@ interface InputProps {
   isPass?: boolean;
   isDesc?: boolean;
   tiny?: boolean;
+  little?: boolean;
   pc?: string;
 }
 
-const Input: React.FC<InputProps> = ({label, name, value, setValue, isPass, isDesc, tiny, pc = ''}) => {
+const Input: React.FC<InputProps> = ({little, label, name, value, setValue, isPass, isDesc, tiny, pc = ''}) => {
     const handleChange = (event: ChangeEvent<HTMLInputElement>) => setValue(event.target.value);
     const handleChange1 = (event: ChangeEvent<HTMLTextAreaElement>) => setValue(event.target.value);
     return (
       <InputField tiny={tiny}>
-        <InputLabel tiny={tiny}>{label}</InputLabel>
+        <InputLabel tiny={tiny} little={little}>{label}</InputLabel>
         {!isDesc 
          ? (<StyledInput 
               type={isPass ? "password": "text"} 
@@ -29,6 +30,7 @@ const Input: React.FC<InputProps> = ({label, name, value, setValue, isPass, isDe
               value={value} 
               onChange={handleChange} 
               tiny={tiny}
+              little={little}
               placeholder={pc}
             />)
          : (<StyledTextArea isDesc name={name} value={value} onChange={handleChange1} />)

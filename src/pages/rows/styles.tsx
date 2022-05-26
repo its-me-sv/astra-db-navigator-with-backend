@@ -50,6 +50,14 @@ export const ColumnTitle = styled.span`
   /* border-bottom: 1px solid #8e8e91; */
 `;
 
+export const SubTitles = styled.span`
+  font-family: calibri;
+  font-size: 1.4rem;
+  opacity: 0.9;
+  text-align: left;
+  padding: 0% 2.8%;
+`;
+
 export const FilterHeader = styled.div`
   display: flex;
   align-items: flex-end;
@@ -63,9 +71,11 @@ export const SubFieldItems = styled.div`
   display: flex;
   overflow: auto;
   flex-wrap: wrap;
+  align-items: flex-start;
   width: 15vw;
   padding: 2.1%;
-  max-height: 42vh;
+  height: 14vh;
+  max-height: 14vh;
   gap: 0.4rem;
 `;
 
@@ -141,4 +151,13 @@ export const RowButton = styled.span`
     opacity: 1;
     transform: scale(1);
   }
+`;
+
+export const PriColsHolder = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 0% 2.8%;
+  height: 42vh;
+  max-height: 42vh;
+  overflow: auto;
 `;

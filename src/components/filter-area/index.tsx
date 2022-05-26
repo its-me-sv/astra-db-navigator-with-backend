@@ -3,7 +3,7 @@ import React from "react";
 import {
   FilterArea as Container, ColumnTitle, 
   FilterHeader, SubFieldItems, FilterFooter,
-  PagesHolder
+  PagesHolder, SubTitles, PriColsHolder
 } from '../../pages/rows/styles';
 import {ModalItem, ModalItemCloseButton} from "../keyspaces/styles";
 import {HrLine} from "../keyspaces/styles";
@@ -18,6 +18,7 @@ import {useRowsContext} from '../../contexts/rows.context';
 
 import Button from '../button';
 import Select from '../select';
+import Input from '../input';
 
 interface FilterAreaProps {}
 
@@ -42,6 +43,7 @@ const FilterArea: React.FC<FilterAreaProps> = () => {
         />
       </PagesHolder>
       <HrLine il />
+      <SubTitles>Columns</SubTitles>
       {columns.length > 0 && (
         <FilterHeader>
           <Select
@@ -49,7 +51,7 @@ const FilterArea: React.FC<FilterAreaProps> = () => {
             val={currColumn}
             setVal={setCurrColumn!}
             notHeader
-            label="Columns"
+            // label="Columns"
           />
           <Button
             variant={4}
@@ -65,17 +67,32 @@ const FilterArea: React.FC<FilterAreaProps> = () => {
           <ModalItem key={val}>
             <div>
               <span>{val}</span>
-              {!priColumns.includes(val) && (<ModalItemCloseButton
-                title={tableModalTranslations.delCol[language]}
-                onClick={() => removeColumn!(val)}
-              >
-                🗑️
-              </ModalItemCloseButton>)}
+              {!priColumns.includes(val) && (
+                <ModalItemCloseButton
+                  title={tableModalTranslations.delCol[language]}
+                  onClick={() => removeColumn!(val)}
+                >
+                  🗑️
+                </ModalItemCloseButton>
+              )}
             </div>
           </ModalItem>
         ))}
       </SubFieldItems>
       <HrLine il />
+      <SubTitles>Where</SubTitles>
+      <PriColsHolder>
+        {priColumns.map((colName) => (
+          <Input
+            key={colName}
+            name={colName}
+            value=""
+            setValue={() => {}}
+            label={colName}
+            little
+          />
+        ))}
+      </PriColsHolder>
       <FilterFooter>
         <Button
           text={rowTranslations.fetchRows[language]}
