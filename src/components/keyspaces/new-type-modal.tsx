@@ -36,7 +36,7 @@ const NewTypeModal: React.FC<NewTypeModalProps> = ({onClose}) => {
   const {appToken: tkn} = useConnectionContext();
   const {currDatabase} = useDatabaseContext();
   const {currKeyspace} = useKeyspaceContext();
-  const {deleteCb, setText} = useDeleteContext();
+  const {deleteCb, setText, secure} = useDeleteContext();
   const {setLoading, addType} = useTypeContext();
   
   const [fields, setFields] = useState<Array<FieldSchema>>([]);
@@ -57,6 +57,7 @@ const NewTypeModal: React.FC<NewTypeModalProps> = ({onClose}) => {
   const addField = (val: FieldSchema) => setFields([...fields, val]);
 
   const removeField = (fieldName: string) => {
+    secure!.current = "";
     deleteCb!.current = () => {
       setFields(fields.filter(({name}) => name !== fieldName));
       setText!("");

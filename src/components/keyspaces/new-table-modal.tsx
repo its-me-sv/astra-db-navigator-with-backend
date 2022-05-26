@@ -41,7 +41,7 @@ const NewTableModal: React.FC<NewTableModalProps> = ({onClose}) => {
   const {language} = useLanguageContext();
   const {setLoading: ls, addTbl} = useTableContext();
   const {types} = useTypeContext();
-  const {setText, deleteCb} = useDeleteContext();
+  const {setText, deleteCb, secure} = useDeleteContext();
   const {appToken: tkn} = useConnectionContext();
   const {currDatabase} = useDatabaseContext();
   const {currKeyspace} = useKeyspaceContext();
@@ -67,6 +67,7 @@ const NewTableModal: React.FC<NewTableModalProps> = ({onClose}) => {
   };
 
   const removeColumn = (colName: string) => {
+    secure!.current = "";
     deleteCb!.current = () => {
       setColumns(columns.filter(({name}) => name !== colName));
       setPars(pars.filter((name) => name !== colName));
@@ -82,6 +83,7 @@ const NewTableModal: React.FC<NewTableModalProps> = ({onClose}) => {
   };
 
   const remPar = (parName: string) => {
+    secure!.current = "";
     deleteCb!.current = () => {
       setPars(pars.filter(name => name !== parName));
       setText!('');
@@ -94,6 +96,7 @@ const NewTableModal: React.FC<NewTableModalProps> = ({onClose}) => {
   };
 
   const remClstr = (clName: string) => {
+    secure!.current = "";
     deleteCb!.current = () => {
       setClstrs(clstrs.filter(({column}) => column !== clName));
       setText!("");

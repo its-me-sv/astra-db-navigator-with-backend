@@ -36,7 +36,7 @@ interface TypeModalProps {
 
 const TypeModal: React.FC<TypeModalProps> = ({typeName, onClose, ls}) => {
   const {language} = useLanguageContext();
-  const {deleteCb, setText} = useDeleteContext();
+  const {deleteCb, setText, secure} = useDeleteContext();
   const {setLoading, removeType} = useTypeContext();
   const {appToken: tkn} = useConnectionContext();
   const {currDatabase} = useDatabaseContext();
@@ -48,6 +48,7 @@ const TypeModal: React.FC<TypeModalProps> = ({typeName, onClose, ls}) => {
   const newFieldRef = useRef<NewField>({ name: "", typeDefinition: "ascii" });
 
   const deleteType = () => {
+    secure!.current = typeName;
     deleteCb!.current = () => {
       setLoading!(true);
       axios

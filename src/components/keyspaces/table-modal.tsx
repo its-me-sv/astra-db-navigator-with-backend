@@ -36,7 +36,7 @@ interface TableModalProps {
 const TableModal: React.FC<TableModalProps> = ({tableName, onClose, ls, types}) => {
   const {language} = useLanguageContext();
   const {removeTable, setLoading, decCol} = useTableContext();
-  const {setText, deleteCb} = useDeleteContext();
+  const {setText, deleteCb, secure} = useDeleteContext();
   const {appToken: tkn} = useConnectionContext();
   const {currDatabase} = useDatabaseContext();
   const {currKeyspace} = useKeyspaceContext();
@@ -54,6 +54,7 @@ const TableModal: React.FC<TableModalProps> = ({tableName, onClose, ls, types}) 
   const hideColumnModal = () => setShowColumn(false);
 
   const deleteTable = () => {
+    secure!.current = tableName;
     deleteCb!.current = () => {
       setLoading!(true);
       axios

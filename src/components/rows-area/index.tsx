@@ -23,13 +23,14 @@ interface RowsAreaInterface {}
 const RowsArea: React.FC<RowsAreaInterface> = () => {
   const {language} = useLanguageContext();
   const {rows, fetchRows, deleteRow, setShowRow, showRow} = useRowsContext();
-  const {setText, deleteCb} = useDeleteContext();
+  const {setText, deleteCb, secure} = useDeleteContext();
 
   const [keyword, setKeyword] = useState<string>("");
   
   const applyKeyword = (val: string) => setKeyword(val);
 
   const removeRow = (idx: number) => {
+    secure!.current = '';
     deleteCb!.current = () => {
       deleteRow!(idx);
       setText!('');
