@@ -3,7 +3,7 @@ import React, {useState, useEffect} from "react";
 import {
   KeyspaceContainer, Seperator, SeperatorTitle,
   ContentContainer, ItemHolder, ItemName, Info,
-  HrLine, ItemSubfield
+  HrLine, ItemSubfield, MoveTop
 } from './styles';
 import {EmptyContent} from '../keyspace/styles';
 import {keyspacesTranslations, general} from '../../utils/translations.utils';
@@ -96,13 +96,28 @@ const TableAndTypePage: React.FC<TableAndTypePageProps> = () => {
             <ItemHolder key={idx} onClick={() => setTable!(val.name)}>
               <ItemName>
                 {val.name}
-                <Info
+                <MoveTop
                   onClick={(event) => {
                     event.stopPropagation();
                     setCurrTable(val.name);
                   }}
-                  title={keyspacesTranslations.tblInf[language]}
-                />
+                  title={keyspacesTranslations.alter[language]}
+                >
+                  <Button
+                    text={keyspacesTranslations.alter[language]}
+                    variant={4}
+                    onPress={() => setCurrTable(val.name)}
+                    disabled={false}
+                    tiny
+                  />
+                </MoveTop>
+                {/* <Info
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setCurrTable(val.name);
+                  }}
+                  title={keyspacesTranslations.alter[language]}
+                /> */}
               </ItemName>
               <HrLine />
               <ItemSubfield>

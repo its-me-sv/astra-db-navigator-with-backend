@@ -289,6 +289,12 @@ export const keyspacesTranslations = {
     "Aggiungi nuovo tipo",
     "Agregar nuevo tipo",
     "Ajouter un nouveau type"
+  ],
+  alter: [
+    "Alter",
+    "Alter",
+    "Alterar",
+    "Modifier"
   ]
 };
 

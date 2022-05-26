@@ -69,6 +69,10 @@ export const Info = styled.img.attrs({
   }
 `;
 
+export const MoveTop = styled.div`
+  z-index: 200;
+`;
+
 export const ItemName = styled.span`
   font-family: calibri;
   font-size: 1.6rem;
