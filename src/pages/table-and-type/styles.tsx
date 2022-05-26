@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import infoIcon from '../../assets/icons/info.png';
+import infoIcon from '../../assets/icons/edit.png';
 
 export const KeyspaceContainer = styled.div`
   display: flex;
@@ -58,11 +58,15 @@ export const Info = styled.img.attrs({
   alt: "",
   src: infoIcon
 })`
-  width: 1rem;
+  width: 0.84rem;
   height: auto;
+  opacity: 0.84;
   align-self: flex-start;
   padding-top: 2%;
   z-index: 200;
+  &:hover {
+    opacity: 1;
+  }
 `;
 
 export const ItemName = styled.span`

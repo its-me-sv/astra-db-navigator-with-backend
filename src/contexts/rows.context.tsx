@@ -103,24 +103,34 @@ export const RowsContextProvider: React.FC<{children: ReactNode}> = ({children})
       ksName: currKeyspace?.name,
       tableName: currTable?.name,
     };
-    const reqBody = {
+    const reqBody:any = {
       fields: resColumns.join(),
       "page-size": +pageSize,
+      where: {}
     };
     if (fromFilter) {
       axios.post(`/.netlify/functions/fetch-rows`, {...defaultReqBody, reqBody})
       .then(({data}) => {
-        setRows(data);
-        setPage("");
+        setRows(data.data);
+        setPage(data.pageState);
+        setLoading!(false);
+      }).catch(err => {
+        toast.error(err.response.data);
         setLoading!(false);
       });
     }
     else {
       if (rows.length > 0) {
-        console.log("pagination");
-        setRows([...rows, ...getDummyRows(resColumns, +pageSize)]);
-        setPage("");
-        setLoading!(false);
+        if (page !== null) reqBody["page-state"] = page;
+        axios.post(`/.netlify/functions/fetch-rows`, {...defaultReqBody, reqBody})
+        .then(({data}) => {
+          setRows([...rows, ...data.data]);
+          setPage(data.pageState || null);
+          setLoading!(false);
+        }).catch(() => {
+          toast.error("Unable to paginate");
+          setLoading!(false);
+        });
       }
       else {
         console.log("first fetch");

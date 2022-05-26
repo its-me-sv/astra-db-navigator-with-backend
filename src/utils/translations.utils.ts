@@ -455,6 +455,12 @@ export const rowTranslations = {
     "Aplicar filtro",
     "Aplicar filtro"
   ],
+  fetchRows: [
+    "Fetch rows",
+    "Recupera le righe",
+    "Obtener filas",
+    "Récupérer les lignes"
+  ],
   keyword: [
     "Keyword",
     "Parola chiave",
@@ -484,5 +490,5 @@ export const rowTranslations = {
     "Usa il formato JSON",
     "Usar formato JSON",
     "Utiliser le format JSON"
-  ]
+  ],
 };

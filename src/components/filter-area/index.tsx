@@ -77,7 +77,7 @@ const FilterArea: React.FC<FilterAreaProps> = () => {
       <HrLine il />
       <FilterFooter>
         <Button
-          text={rowTranslations.applyFilter[language]}
+          text={rowTranslations.fetchRows[language]}
           variant={5}
           onPress={() => fetchRows!(true)}
           disabled={resColumns.length === 0}

@@ -6,14 +6,16 @@ exports.handler = async function (event) {
     ksName, tableName, reqBody
   } = JSON.parse(event.body);
   try {
-    let defaultUrl = `https://${dbId}-${dbRegion}.apps.astra.datastax.com/api/rest/v2/keyspaces/${ksName}/${tableName}?where=\{\}`;
+    let defaultUrl = `https://${dbId}-${dbRegion}.apps.astra.datastax.com/api/rest/v2/keyspaces/${ksName}/${tableName}/`;
     const params = Object.keys(reqBody);
-    for (let param of params) 
+    const notWhere = params.filter(val => val !== 'where');
+    defaultUrl += `?where=${encodeURI(JSON.stringify(reqBody.where))}`;
+    for (let param of notWhere) 
       defaultUrl += `&${param}=${encodeURI(reqBody[param])}`;
     const {data} = await axios.get(defaultUrl, {headers: {'X-Cassandra-Token': `${tkn}`}});
     return {
       statusCode: 200,
-      body: JSON.stringify(data.data)
+      body: JSON.stringify(data)
     };
   } catch (err) {
     return {

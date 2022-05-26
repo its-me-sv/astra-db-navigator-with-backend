@@ -22,7 +22,7 @@ interface RowsAreaInterface {}
 
 const RowsArea: React.FC<RowsAreaInterface> = () => {
   const {language} = useLanguageContext();
-  const {rows, fetchRows, deleteRow, setShowRow, showRow} = useRowsContext();
+  const {rows, fetchRows, deleteRow, setShowRow, showRow, page} = useRowsContext();
   const {setText, deleteCb, secure} = useDeleteContext();
 
   const [keyword, setKeyword] = useState<string>("");
@@ -91,7 +91,7 @@ const RowsArea: React.FC<RowsAreaInterface> = () => {
                 })}
               </Row>
             ))}
-            {keyword.length === 0 && (
+            {keyword.length === 0 && page !== null && (
               <Button
                 text={rowTranslations.loadMore[language]}
                 variant={4}
